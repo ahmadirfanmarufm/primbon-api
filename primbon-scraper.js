@@ -95,15 +95,28 @@ async function Jodoh(nama1, nama2) {
                 const $ = cheerio.load(data);
                 const love = 'https://www.primbon.com/' + $('#body > img').attr('src');
                 const res = $('#body').text().split(nama2)[1].replace('< Hitung Kembali', '').split('\n')[0];
-                const positif = res.split('Sisi Negatif Anda: ')[0].replace('Sisi Positif Anda: ', '')
-                const negatif = res.split('Sisi Negatif Anda: ')[1]
+                const positif = res.split('Sisi Negatif Anda: ')[0].replace('Sisi Positif Anda: ', '').trim();
+                const negatifDanPenjelasan = res.split('Sisi Negatif Anda: ')[1].trim();
+
+                const awalPenjelasanIndex = negatifDanPenjelasan.search(/Anda|Hubungan|Sementara itu|Karena itu|Apalagi|Namun|Jadi|Oleh karena itu|Tetapi/);
+                
+                let negatif, penjelasan;
+                if (awalPenjelasanIndex !== -1) {
+                    negatif = negatifDanPenjelasan.substring(0, awalPenjelasanIndex).trim();
+                    penjelasan = negatifDanPenjelasan.substring(awalPenjelasanIndex).trim();
+                } else {
+                    negatif = negatifDanPenjelasan;
+                    penjelasan = '';
+                }
+
                 const result = {
                     namaAnda: nama1,
                     namaPasangan: nama2,
                     positif: positif,
                     negatif: negatif,
+                    penjelasan: penjelasan,
                     love: love
-                }
+                };
                 resolve(result);
             })
             .catch(reject);
